@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная панель - Производство печати</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .sidebar {
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 40;
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 16rem;
+            }
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 4px 8px;
+        }
+        
+        .nav-item:hover {
+            background-color: #f1f5f9;
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .stat-card.success {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        
+        .quick-action {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quick-action:hover {
+            border-color: #3b82f6;
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 50;
+        }
+        
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.3s ease;
+        }
+        
+        .notification-item:hover {
+            background-color: #f8fafc;
+        }
+        
+        .notification-item.unread {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .burger-menu {
+            display: none;
+        }
+        
+        @media (max-width: 767px) {
+            .burger-menu {
+                display: block;
+            }
+        }
+        
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+            z-index: 30;
+        }
+        
+        .chat-widget:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Burger Menu -->
+    <div class="burger-menu fixed top-4 left-4 z-50">
+        <button id="burgerMenu" class="bg-white p-3 rounded-lg shadow-lg">
+            <i class="fas fa-bars text-gray-600"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 p-4 transform -translate-x-full md:translate-x-0">
+        <div class="mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-print text-2xl text-blue-600 mr-3"></i>
+                <h1 class="text-xl font-bold text-gray-800">Печать Про</h1>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                        <div id="userName" class="font-semibold text-gray-800">Пользователь</div>
+                        <div id="userRole" class="text-sm text-gray-500">Менеджер</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <nav class="space-y-2">
+            <a href="index.html" class="nav-item active flex items-center p-3 text-gray-700">
+                <i class="fas fa-home mr-3 w-5"></i>
+                <span>Главная</span>
+            </a>
+            <a href="calculator.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-calculator mr-3 w-5"></i>
+                <span>Калькулятор</span>
+            </a>
+            <a href="clients.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-users mr-3 w-5"></i>
+                <span>Клиенты</span>
+            </a>
+            <a href="orders.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-clipboard-list mr-3 w-5"></i>
+                <span>Заказы</span>
+            </a>
+            <a href="chat.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-comments mr-3 w-5"></i>
+                <span>Чат</span>
+            </a>
+            <a href="documents.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-file-alt mr-3 w-5"></i>
+                <span>Документы</span>
+            </a>
+            <a href="profile.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-user-cog mr-3 w-5"></i>
+                <span>Профиль</span>
+            </a>
+            <a href="admin.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-cog mr-3 w-5"></i>
+                <span>Админ-панель</span>
+            </a>
+        </nav>
+        
+        <!-- Logout Button -->
+        <div class="absolute bottom-4 left-4 right-4">
+            <button id="logoutBtn" class="w-full bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-colors">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Выход
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-800">Главная панель</h2>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button id="notificationBtn" class="relative p-2 text-gray-600 hover:text-gray-800">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        Новый заказ
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-6">
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">Активные заказы</p>
+                            <p class="text-2xl font-bold">24</p>
+                        </div>
+                        <i class="fas fa-clipboard-list text-3xl text-blue-200"></i>
+                    </div>
+                </div>
+                
+                <div class="stat-card success card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">Выполнено сегодня</p>
+                            <p class="text-2xl font-bold">12</p>
+                        </div>
+                        <i class="fas fa-check-circle text-3xl text-green-200"></i>
+                    </div>
+                </div>
+                
+                <div class="stat-card warning card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-100 text-sm">Срочные заказы</p>
+                            <p class="text-2xl font-bold">5</p>
+                        </div>
+                        <i class="fas fa-exclamation-triangle text-3xl text-yellow-200"></i>
+                    </div>
+                </div>
+                
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Новые клиенты</p>
+                            <p class="text-2xl font-bold text-gray-800">8</p>
+                        </div>
+                        <i class="fas fa-users text-3xl text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Быстрые действия</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <div class="quick-action" onclick="window.location.href='calculator.html'">
+                        <i class="fas fa-calculator text-2xl text-blue-600 mb-2"></i>
+                        <div class="text-sm font-medium text-gray-700">Калькулятор</div>
+                    </div>
+                    
+                    <div class="quick-action" onclick="window.location.href='clients.html'">
+                        <i class="fas fa-user-plus text-2xl text-green-600 mb-2"></i>
+                        <div class="text-sm font-medium text-gray-700">Новый клиент</div>
+                    </div>
+                    
+                    <div class="quick-action" onclick="window.location.href='orders.html'">
+                        <i class="fas fa-file-invoice text-2xl text-purple-600 mb-2"></i>
+                        <div class="text-sm font-medium text-gray-700">Создать КП</div>
+                    </div>
+                    
+                    <div class="quick-action" onclick="window.location.href='chat.html'">
+                        <i class="fas fa-comment text-2xl text-orange-600 mb-2"></i>
+                        <div class="text-sm font-medium text-gray-700">Написать</div>
+                    </div>
+                    
+                    <div class="quick-action" onclick="generateReport()">
+                        <i class="fas fa-chart-bar text-2xl text-red-600 mb-2"></i>
+                        <div class="text-sm font-medium text-gray-700">Отчет</div>
+                    </div>
+                    
+                    <div class="quick-action" onclick="window.location.href='admin.html'">
+                        <i class="fas fa-cogs text-2xl text-gray-600 mb-2"></i>
+                        <div class="text-sm font-medium text-gray-700">Настройки</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Recent Orders -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Последние заказы</h3>
+                        <a href="orders.html" class="text-blue-600 hover:text-blue-800 text-sm">Все заказы</a>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="font-medium text-gray-800">DTF печать футболок</div>
+                                <div class="text-sm text-gray-500">ООО Пример Компания</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-blue-600">В работе</div>
+                                <div class="text-xs text-gray-500">25.01.2024</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="font-medium text-gray-800">UV печать на кружках</div>
+                                <div class="text-sm text-gray-500">ИП Иванов</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-green-600">Готов</div>
+                                <div class="text-xs text-gray-500">24.01.2024</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="font-medium text-gray-800">Сублимация на сумках</div>
+                                <div class="text-sm text-gray-500">ЗАО ТекстильПром</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-orange-600">Ожидание</div>
+                                <div class="text-xs text-gray-500">24.01.2024</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Clients -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Новые клиенты</h3>
+                        <a href="clients.html" class="text-blue-600 hover:text-blue-800 text-sm">Все клиенты</a>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-building text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-800">ООО Модный Стиль</div>
+                                <div class="text-sm text-gray-500">+7 (999) 123-45-67</div>
+                            </div>
+                            <div class="text-xs text-gray-500">2 часа назад</div>
+                        </div>
+                        
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-store text-green-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-800">ИП Соколова М.А.</div>
+                                <div class="text-sm text-gray-500">+7 (888) 987-65-43</div>
+                            </div>
+                            <div class="text-xs text-gray-500">5 часов назад</div>
+                        </div>
+                        
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-tshirt text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-800">ТОО Спортивный Мир</div>
+                                <div class="text-sm text-gray-500">+7 (777) 555-12-34</div>
+                            </div>
+                            <div class="text-xs text-gray-500">1 день назад</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Production Status -->
+            <div class="mt-8">
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Статус производства</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-print text-2xl text-blue-600"></i>
+                            </div>
+                            <div class="font-semibold text-gray-800">DTF Цех</div>
+                            <div class="text-sm text-gray-500">Загрузка: 85%</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-sun text-2xl text-green-600"></i>
+                            </div>
+                            <div class="font-semibold text-gray-800">UV Печать</div>
+                            <div class="text-sm text-gray-500">Загрузка: 60%</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-magic text-2xl text-purple-600"></i>
+                            </div>
+                            <div class="font-semibold text-gray-800">Сублимация</div>
+                            <div class="text-sm text-gray-500">Загрузка: 40%</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div class="bg-purple-600 h-2 rounded-full" style="width: 40%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget" onclick="window.location.href='chat.html'">
+        <i class="fas fa-comments text-xl"></i>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!system.currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Update user info
+            system.updateUI();
+            
+            // Load dashboard data
+            loadDashboardData();
+        });
+        
+        function loadDashboardData() {
+            // Simulate loading dashboard statistics
+            setTimeout(() => {
+                // Update statistics with real data from system
+                const orders = system.db.orders || [];
+                const clients = system.db.clients || [];
+                
+                // Update active orders count
+                const activeOrders = orders.filter(o => o.status === 'processing' || o.status === 'in_work').length;
+                document.querySelector('.stat-card:first-child .text-2xl').textContent = activeOrders;
+                
+                // Update clients count
+                document.querySelector('.card:last-child .text-2xl').textContent = clients.length;
+            }, 500);
+        }
+        
+        function generateReport() {
+            // Show loading state
+            const btn = event.currentTarget;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl text-red-600 mb-2"></i><div class="text-sm font-medium text-gray-700">Генерация...</div>';
+            
+            setTimeout(() => {
+                // Simulate report generation
+                system.createNotification('report_generated', 'Отчет сгенерирован', 'Ежедневный отчет успешно создан и сохранен в документах.');
+                
+                // Reset button
+                btn.innerHTML = originalHTML;
+                
+                // Show success message
+                alert('Отчет успешно сгенерирован! Проверьте раздел "Документы".');
+            }, 2000);
+        }
+        
+        // Mobile sidebar toggle
+        document.getElementById('burgerMenu').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const burgerMenu = document.getElementById('burgerMenu');
+            
+            if (window.innerWidth < 768 && 
+                !sidebar.contains(e.target) && 
+                !burgerMenu.contains(e.target) && 
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Производство печати</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .sidebar {
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 40;
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 16rem;
+            }
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 4px 8px;
+        }
+        
+        .nav-item:hover {
+            background-color: #f1f5f9;
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stats-card.success {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        
+        .stats-card.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .stats-card.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .form-input {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .admin-tab {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .admin-tab.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .admin-tab:hover {
+            border-color: #3b82f6;
+            background-color: #f8fafc;
+        }
+        
+        .admin-tab.active:hover {
+            background-color: #2563eb;
+        }
+        
+        .user-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .user-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: #f0fdf4;
+            color: #16a34a;
+        }
+        
+        .status-inactive {
+            background-color: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .status-pending {
+            background-color: #fffbeb;
+            color: #d97706;
+        }
+        
+        .burger-menu {
+            display: none;
+        }
+        
+        @media (max-width: 767px) {
+            .burger-menu {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Burger Menu -->
+    <div class="burger-menu fixed top-4 left-4 z-50">
+        <button id="burgerMenu" class="bg-white p-3 rounded-lg shadow-lg">
+            <i class="fas fa-bars text-gray-600"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 p-4 transform -translate-x-full md:translate-x-0">
+        <div class="mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-print text-2xl text-blue-600 mr-3"></i>
+                <h1 class="text-xl font-bold text-gray-800">Печать Про</h1>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                        <div id="userName" class="font-semibold text-gray-800">Пользователь</div>
+                        <div id="userRole" class="text-sm text-gray-500">Менеджер</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <nav class="space-y-2">
+            <a href="index.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-home mr-3 w-5"></i>
+                <span>Главная</span>
+            </a>
+            <a href="calculator.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-calculator mr-3 w-5"></i>
+                <span>Калькулятор</span>
+            </a>
+            <a href="clients.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-users mr-3 w-5"></i>
+                <span>Клиенты</span>
+            </a>
+            <a href="orders.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-clipboard-list mr-3 w-5"></i>
+                <span>Заказы</span>
+            </a>
+            <a href="chat.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-comments mr-3 w-5"></i>
+                <span>Чат</span>
+            </a>
+            <a href="documents.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-file-alt mr-3 w-5"></i>
+                <span>Документы</span>
+            </a>
+            <a href="profile.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-user-cog mr-3 w-5"></i>
+                <span>Профиль</span>
+            </a>
+            <a href="admin.html" class="nav-item active flex items-center p-3 text-gray-700">
+                <i class="fas fa-cog mr-3 w-5"></i>
+                <span>Админ-панель</span>
+            </a>
+        </nav>
+        
+        <!-- Logout Button -->
+        <div class="absolute bottom-4 left-4 right-4">
+            <button id="logoutBtn" class="w-full bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-colors">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Выход
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-800">Админ-панель</h2>
+                
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">Администратор: <span id="adminName">System Administrator</span></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-6">
+            <!-- Admin Tabs -->
+            <div class="flex flex-wrap gap-4 mb-8">
+                <button class="admin-tab active" onclick="switchTab('dashboard')" id="dashboardTab">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    Дашборд
+                </button>
+                <button class="admin-tab" onclick="switchTab('users')" id="usersTab">
+                    <i class="fas fa-users mr-2"></i>
+                    Пользователи
+                </button>
+                <button class="admin-tab" onclick="switchTab('calculators')" id="calculatorsTab">
+                    <i class="fas fa-calculator mr-2"></i>
+                    Калькуляторы
+                </button>
+                <button class="admin-tab" onclick="switchTab('settings')" id="settingsTab">
+                    <i class="fas fa-cog mr-2"></i>
+                    Настройки
+                </button>
+                <button class="admin-tab" onclick="switchTab('logs')" id="logsTab">
+                    <i class="fas fa-history mr-2"></i>
+                    Логи
+                </button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboardContent" class="tab-content">
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stats-card">
+                        <div class="text-3xl font-bold mb-2" id="totalUsers">0</div>
+                        <div class="text-sm opacity-90">Всего пользователей</div>
+                    </div>
+                    <div class="stats-card success">
+                        <div class="text-3xl font-bold mb-2" id="activeUsers">0</div>
+                        <div class="text-sm opacity-90">Активных</div>
+                    </div>
+                    <div class="stats-card warning">
+                        <div class="text-3xl font-bold mb-2" id="pendingUsers">0</div>
+                        <div class="text-sm opacity-90">Ожидают подтверждения</div>
+                    </div>
+                    <div class="stats-card danger">
+                        <div class="text-3xl font-bold mb-2" id="lockedUsers">0</div>
+                        <div class="text-sm opacity-90">Заблокированных</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Последняя активность</h3>
+                    <div id="recentActivity" class="space-y-3">
+                        <!-- Activity items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersContent" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800">Управление пользователями</h3>
+                    <button onclick="addUser()" class="btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Добавить пользователя
+                    </button>
+                </div>
+
+                <!-- Users Grid -->
+                <div id="usersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Calculators Tab -->
+            <div id="calculatorsContent" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800">Управление калькуляторами</h3>
+                    <button onclick="addCalculator()" class="btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Добавить калькулятор
+                    </button>
+                </div>
+
+                <!-- Calculators Grid -->
+                <div id="calculatorsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Calculators will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsContent" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- System Settings -->
+                    <div class="card p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">Системные настройки</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Название компании</label>
+                                <input type="text" id="companyName" class="form-input w-full" value="ООО Печать Про">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email администратора</label>
+                                <input type="email" id="adminEmail" class="form-input w-full" value="admin@printcompany.com">
+                            </div>
+                            
+                            <div>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" id="autoApproveUsers" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <span class="text-sm text-gray-700">Автоматическое подтверждение новых пользователей</span>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" id="emailNotifications" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                    <span class="text-sm text-gray-700">Email уведомления</span>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Максимальное количество попыток входа</label>
+                                <input type="number" id="maxLoginAttempts" class="form-input w-full" value="5" min="3" max="10">
+                            </div>
+                        </div>
+                        
+                        <button onclick="saveSettings()" class="btn-primary w-full mt-6">
+                            <i class="fas fa-save mr-2"></i>
+                            Сохранить настройки
+                        </button>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div class="card p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">Настройки уведомлений</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-700">Новые заказы</span>
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-700">Новые клиенты</span>
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-700">Изменение статусов заказов</span>
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-700">Новые сообщения в чате</span>
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-700">Системные уведомления</span>
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <h4 class="font-medium text-gray-800 mb-4">Telegram Bot</h4>
+                            <div class="text-sm text-gray-600 mb-4">
+                                Токен бота: 8128397217:AAGzNT7FfATcBqTIHwuyMjVbE2NMfB4i3bg
+                            </div>
+                            <button onclick="testBotConnection()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                Проверить подключение
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs Tab -->
+            <div id="logsContent" class="tab-content hidden">
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Системные логи</h3>
+                        <button onclick="clearLogs()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                            <i class="fas fa-trash mr-2"></i>
+                            Очистить логи
+                        </button>
+                    </div>
+
+                    <!-- Log Filters -->
+                    <div class="flex items-center space-x-4 mb-6">
+                        <select id="logFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Все действия</option>
+                            <option value="login">Входы</option>
+                            <option value="client_created">Создание клиентов</option>
+                            <option value="order_created">Создание заказов</option>
+                            <option value="document_generated">Генерация документов</option>
+                        </select>
+                        
+                        <button onclick="refreshLogs()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Обновить
+                        </button>
+                    </div>
+
+                    <!-- Logs List -->
+                    <div id="logsList" class="space-y-2 max-h-96 overflow-y-auto">
+                        <!-- Logs will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        let currentTab = 'dashboard';
+
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!system.currentUser || system.currentUser.role !== 'administrator') {
+                alert('Доступ запрещен. Требуются права администратора.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            system.updateUI();
+            loadDashboard();
+            loadUsers();
+            loadCalculators();
+            loadLogs();
+        });
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.admin-tab').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+            
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            
+            // Show selected content
+            document.getElementById(tab + 'Content').classList.remove('hidden');
+            
+            currentTab = tab;
+        }
+
+        function loadDashboard() {
+            const users = system.db.users;
+            const totalUsers = users.length;
+            const activeUsers = users.filter(u => u.isActive && !u.isLocked).length;
+            const pendingUsers = users.filter(u => !u.isActive && !u.isLocked).length;
+            const lockedUsers = users.filter(u => u.isLocked).length;
+            
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('pendingUsers').textContent = pendingUsers;
+            document.getElementById('lockedUsers').textContent = lockedUsers;
+            
+            // Load recent activity
+            const recentLogs = system.db.systemLogs.slice(-5);
+            const activityContainer = document.getElementById('recentActivity');
+            
+            activityContainer.innerHTML = recentLogs.map(log => {
+                const user = system.db.users.find(u => u.id === log.userId);
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">${user ? user.fullName : 'Неизвестный'}</div>
+                                <div class="text-xs text-gray-500">${log.details}</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400">${system.formatDate(log.timestamp)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadUsers() {
+            const users = system.db.users;
+            const grid = document.getElementById('usersGrid');
+            
+            grid.innerHTML = users.map(user => {
+                const statusClass = user.isLocked ? 'status-inactive' : user.isActive ? 'status-active' : 'status-pending';
+                const statusText = user.isLocked ? 'Заблокирован' : user.isActive ? 'Активен' : 'Ожидает';
+                
+                return `
+                    <div class="user-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-user text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">${user.fullName}</div>
+                                    <div class="text-sm text-gray-500">${user.position}</div>
+                                </div>
+                            </div>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        
+                        <div class="text-sm text-gray-600 mb-3">
+                            <div><i class="fas fa-envelope mr-2 w-4"></i>${user.email}</div>
+                            <div><i class="fas fa-user-tag mr-2 w-4"></i>${user.role}</div>
+                            <div><i class="fas fa-calendar mr-2 w-4"></i>${system.formatDate(user.createdAt)}</div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            ${!user.isActive && !user.isLocked ? `
+                                <button onclick="approveUser('${user.id}')" class="flex-1 bg-green-600 text-white py-1 px-2 rounded text-xs hover:bg-green-700">
+                                    <i class="fas fa-check mr-1"></i>Подтвердить
+                                </button>
+                            ` : ''}
+                            ${user.isLocked ? `
+                                <button onclick="unlockUser('${user.id}')" class="flex-1 bg-blue-600 text-white py-1 px-2 rounded text-xs hover:bg-blue-700">
+                                    <i class="fas fa-unlock mr-1"></i>Разблокировать
+                                </button>
+                            ` : `
+                                <button onclick="editUser('${user.id}')" class="flex-1 bg-gray-600 text-white py-1 px-2 rounded text-xs hover:bg-gray-700">
+                                    <i class="fas fa-edit mr-1"></i>Редактировать
+                                </button>
+                            `}
+                            ${user.id !== system.currentUser.id ? `
+                                <button onclick="deleteUser('${user.id}')" class="bg-red-600 text-white py-1 px-2 rounded text-xs hover:bg-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadCalculators() {
+            const calculators = system.db.calculators;
+            const grid = document.getElementById('calculatorsGrid');
+            
+            grid.innerHTML = calculators.map(calculator => `
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">${calculator.name}</h3>
+                        <span class="status-badge ${calculator.isActive ? 'status-active' : 'status-inactive'}">
+                            ${calculator.isActive ? 'Активен' : 'Неактивен'}
+                        </span>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 mb-4">
+                        <div><strong>Технология:</strong> ${calculator.technology}</div>
+                        <div><strong>ID:</strong> ${calculator.id}</div>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="editCalculator('${calculator.id}')" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded text-sm hover:bg-blue-700">
+                            <i class="fas fa-edit mr-1"></i>Редактировать
+                        </button>
+                        <button onclick="toggleCalculator('${calculator.id}')" class="flex-1 ${calculator.isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white py-2 px-4 rounded text-sm">
+                            <i class="fas fa-${calculator.isActive ? 'pause' : 'play'} mr-1"></i>${calculator.isActive ? 'Отключить' : 'Включить'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadLogs() {
+            const logs = system.db.systemLogs.slice(-20); // Last 20 logs
+            const container = document.getElementById('logsList');
+            
+            container.innerHTML = logs.map(log => {
+                const user = system.db.users.find(u => u.id === log.userId);
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-800">${user ? user.fullName : 'Система'}</div>
+                                <div class="text-xs text-gray-500">${log.details}</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400">${system.formatDate(log.timestamp)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // User management functions
+        function approveUser(userId) {
+            const user = system.db.users.find(u => u.id === userId);
+            if (user) {
+                user.isActive = true;
+                system.saveDatabase();
+                loadUsers();
+                loadDashboard();
+                
+                system.logAction('user_approved', `Подтвержден пользователь: ${user.username}`);
+                system.createNotification('user_approved', 'Пользователь подтвержден', `Пользователь ${user.fullName} подтвержден`);
+                
+                alert(`Пользователь ${user.fullName} подтвержден!`);
+            }
+        }
+
+        function unlockUser(userId) {
+            const user = system.db.users.find(u => u.id === userId);
+            if (user) {
+                user.isLocked = false;
+                user.loginAttempts = 0;
+                system.saveDatabase();
+                loadUsers();
+                loadDashboard();
+                
+                system.logAction('user_unlocked', `Разблокирован пользователь: ${user.username}`);
+                alert(`Пользователь ${user.fullName} разблокирован!`);
+            }
+        }
+
+        function editUser(userId) {
+            const user = system.db.users.find(u => u.id === userId);
+            if (user) {
+                const newRole = prompt(`Изменить роль для ${user.fullName}:\n\nТекущая роль: ${user.role}\n\nДоступные роли:\n- administrator\n- manager\n- production\n- accountant\n- supervisor`, user.role);
+                
+                if (newRole && ['administrator', 'manager', 'production', 'accountant', 'supervisor'].includes(newRole)) {
+                    user.role = newRole;
+                    system.saveDatabase();
+                    loadUsers();
+                    
+                    system.logAction('user_role_changed', `Изменена роль пользователя ${user.username}: ${newRole}`);
+                    alert(`Роль пользователя ${user.fullName} изменена на ${newRole}`);
+                }
+            }
+        }
+
+        function deleteUser(userId) {
+            if (!confirm('Вы уверены, что хотите удалить этого пользователя?')) return;
+            
+            const userIndex = system.db.users.findIndex(u => u.id === userId);
+            if (userIndex !== -1) {
+                const user = system.db.users[userIndex];
+                system.db.users.splice(userIndex, 1);
+                system.saveDatabase();
+                loadUsers();
+                loadDashboard();
+                
+                system.logAction('user_deleted', `Удален пользователь: ${user.username}`);
+                alert(`Пользователь ${user.fullName} удален!`);
+            }
+        }
+
+        function addUser() {
+            const username = prompt('Введите имя пользователя:');
+            if (!username) return;
+            
+            const email = prompt('Введите email:');
+            if (!email) return;
+            
+            const fullName = prompt('Введите ФИО:');
+            if (!fullName) return;
+            
+            const position = prompt('Введите должность:', 'Менеджер');
+            const role = prompt('Выберите роль:\n- administrator\n- manager\n- production\n- accountant\n- supervisor', 'manager');
+            
+            if (!['administrator', 'manager', 'production', 'accountant', 'supervisor'].includes(role)) {
+                alert('Неверная роль!');
+                return;
+            }
+            
+            const newUser = {
+                id: 'user_' + Date.now(),
+                username: username,
+                email: email,
+                password: 'temp123456', // Temporary password
+                role: role,
+                position: position,
+                fullName: fullName,
+                photo: 'resources/icons/default-avatar.png',
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                lastLogin: null,
+                loginAttempts: 0,
+                isLocked: false,
+                theme: 'light',
+                permissions: ['view_orders', 'manage_clients', 'use_calculator']
+            };
+            
+            system.db.users.push(newUser);
+            system.saveDatabase();
+            loadUsers();
+            loadDashboard();
+            
+            system.logAction('user_created', `Создан пользователь: ${username}`);
+            alert(`Пользователь ${fullName} создан! Временный пароль: temp123456`);
+        }
+
+        // Calculator management functions
+        function toggleCalculator(calculatorId) {
+            const calculator = system.db.calculators.find(c => c.id === calculatorId);
+            if (calculator) {
+                calculator.isActive = !calculator.isActive;
+                system.saveDatabase();
+                loadCalculators();
+                
+                system.logAction('calculator_toggled', `${calculator.isActive ? 'Включен' : 'Отключен'} калькулятор: ${calculator.name}`);
+                alert(`Калькулятор ${calculator.name} ${calculator.isActive ? 'включен' : 'отключен'}`);
+            }
+        }
+
+        function editCalculator(calculatorId) {
+            alert('Редактирование калькуляторов будет доступно в следующей версии системы');
+        }
+
+        function addCalculator() {
+            alert('Добавление новых калькуляторов будет доступно в следующей версии системы');
+        }
+
+        // Settings functions
+        function saveSettings() {
+            const settings = {
+                companyName: document.getElementById('companyName').value,
+                adminEmail: document.getElementById('adminEmail').value,
+                autoApproveUsers: document.getElementById('autoApproveUsers').checked,
+                emailNotifications: document.getElementById('emailNotifications').checked,
+                maxLoginAttempts: parseInt(document.getElementById('maxLoginAttempts').value)
+            };
+            
+            // Save settings to localStorage
+            localStorage.setItem('systemSettings', JSON.stringify(settings));
+            
+            system.logAction('settings_saved', 'Сохранены системные настройки');
+            alert('Настройки успешно сохранены!');
+        }
+
+        function testBotConnection() {
+            // Simulate bot connection test
+            setTimeout(() => {
+                alert('Подключение к Telegram боту успешно проверено!');
+            }, 1000);
+        }
+
+        // Logs functions
+        function refreshLogs() {
+            loadLogs();
+            alert('Логи обновлены');
+        }
+
+        function clearLogs() {
+            if (confirm('Вы уверены, что хотите очистить все логи?')) {
+                system.db.systemLogs = [];
+                system.saveDatabase();
+                loadLogs();
+                
+                system.logAction('logs_cleared', 'Очищены системные логи');
+                alert('Логи очищены!');
+            }
+        }
+
+        // Mobile sidebar toggle
+        document.getElementById('burgerMenu').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const burgerMenu = document.getElementById('burgerMenu');
+            
+            if (window.innerWidth < 768 && 
+                !sidebar.contains(e.target) && 
+                !burgerMenu.contains(e.target) && 
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

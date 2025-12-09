@@ -1,0 +1,177 @@
+{
+  "users": [
+    {
+      "id": "admin_001",
+      "username": "admin",
+      "email": "admin@printcompany.com",
+      "password": "hashed_password_here",
+      "role": "administrator",
+      "position": "System Administrator",
+      "fullName": "System Administrator",
+      "photo": "resources/icons/admin-avatar.png",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "lastLogin": null,
+      "loginAttempts": 0,
+      "isLocked": false,
+      "theme": "light",
+      "permissions": ["all"]
+    }
+  ],
+  "clients": [
+    {
+      "id": "client_001",
+      "companyName": "ООО Пример Компания",
+      "contactPerson": "Иван Иванов",
+      "email": "client@example.com",
+      "phone": "+7 (999) 123-45-67",
+      "status": "active",
+      "assignedTo": "manager_001",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z",
+      "history": []
+    }
+  ],
+  "orders": [
+    {
+      "id": "order_001",
+      "clientId": "client_001",
+      "title": "DTF печать футболок",
+      "status": "processing",
+      "priority": "medium",
+      "assignedTo": "manager_001",
+      "calculatorData": {
+        "technology": "DTF",
+        "format": "A3",
+        "quantity": 100,
+        "complexity": "easy",
+        "sides": "single",
+        "totalMeters": 15.5,
+        "unitPrice": 900,
+        "totalPrice": 13950
+      },
+      "files": [],
+      "comments": [],
+      "createdAt": "2024-01-20T14:00:00Z",
+      "updatedAt": "2024-01-20T14:00:00Z",
+      "deadline": "2024-01-25T18:00:00Z"
+    }
+  ],
+  "calculators": [
+    {
+      "id": "dtf_calculator",
+      "name": "DTF Печать",
+      "technology": "DTF",
+      "isActive": true,
+      "pricing": {
+        "formats": {
+          "A1": { "width": 59.4, "height": 84.1, "maxSheets": 0 },
+          "A2": { "width": 42.0, "height": 59.4, "maxSheets": 1 },
+          "A3": { "width": 29.7, "height": 42.0, "maxSheets": 3 },
+          "A4": { "width": 21.0, "height": 29.7, "maxSheets": 6 },
+          "A5": { "width": 14.8, "height": 21.0, "maxSheets": 12 },
+          "A6": { "width": 10.5, "height": 14.8, "maxSheets": 30 },
+          "A7": { "width": 7.4, "height": 10.5, "maxSheets": 65 }
+        },
+        "meterPricing": [
+          { "range": "1-5", "price": 1100, "time": "1д" },
+          { "range": "5-10", "price": 1000, "time": "1д" },
+          { "range": "10-30", "price": 900, "time": "1д" },
+          { "range": "30-50", "price": 850, "time": "1д" },
+          { "range": "50-100", "price": 800, "time": "2д" },
+          { "range": "100-1000", "price": 750, "time": "от 2 до 9д" }
+        ],
+        "transferPricing": [
+          { "range": "10", "price": 100, "time": "1д" },
+          { "range": "50", "price": 55, "time": "1д" },
+          { "range": "100", "price": 50, "time": "1д" },
+          { "range": "500", "price": 45, "time": "2д" },
+          { "range": "1000", "price": 40, "time": "3-4д" },
+          { "range": "1000-10000", "price": 35, "time": "обговаривается" }
+        ],
+        "packagingPricing": [
+          { "range": "10", "packagePrice": 30, "barcodePrice": 4, "bagPrice": 8 },
+          { "range": "50", "packagePrice": 25, "barcodePrice": 4, "bagPrice": 8 },
+          { "range": "100", "packagePrice": 23, "barcodePrice": 4, "bagPrice": 8 },
+          { "range": "500", "packagePrice": 20, "barcodePrice": 4, "bagPrice": 8 },
+          { "range": "1000", "packagePrice": 20, "barcodePrice": 3, "bagPrice": 7 },
+          { "range": "1000-10000", "packagePrice": 19, "barcodePrice": 3, "bagPrice": 7 }
+        ]
+      }
+    }
+  ],
+  "products": [
+    {
+      "id": "product_001",
+      "name": "Футболка классическая",
+      "category": "clothing",
+      "material": "100% хлопок",
+      "weight": "180 г/м²",
+      "printZone": { "width": 30, "height": 40 },
+      "compatibleTechnologies": ["DTF", "ScreenPrint", "Embroidery"],
+      "basePrice": 250,
+      "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+      "colors": ["белый", "черный", "серый", "красный", "синий"],
+      "inStock": true
+    }
+  ],
+  "chatMessages": [
+    {
+      "id": "msg_001",
+      "orderId": "order_001",
+      "from": "manager_001",
+      "to": "client_001",
+      "message": "Здравствуйте! Ваш заказ принят в работу.",
+      "timestamp": "2024-01-20T14:05:00Z",
+      "isSystem": false,
+      "files": []
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc_001",
+      "type": "quote",
+      "orderId": "order_001",
+      "clientId": "client_001",
+      "generatedBy": "manager_001",
+      "fileName": "КП_001_ООО_Пример_Компания.pdf",
+      "filePath": "resources/documents/КП_001_ООО_Пример_Компания.pdf",
+      "createdAt": "2024-01-20T14:30:00Z",
+      "status": "generated"
+    }
+  ],
+  "systemLogs": [
+    {
+      "id": "log_001",
+      "userId": "manager_001",
+      "action": "login",
+      "details": "Успешный вход в систему",
+      "timestamp": "2024-01-20T13:55:00Z",
+      "ipAddress": "192.168.1.100"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_001",
+      "userId": "manager_001",
+      "type": "new_order",
+      "title": "Новый заказ",
+      "message": "Поступил новый заказ от ООО Пример Компания",
+      "isRead": false,
+      "createdAt": "2024-01-20T14:00:00Z"
+    }
+  ],
+  "productions": [
+    {
+      "id": "prod_001",
+      "name": "DTF Цех №1",
+      "type": "dtf_printing",
+      "contactPerson": "Петр Петров",
+      "phone": "+7 (999) 987-65-43",
+      "email": "dtf@production.com",
+      "cooperationType": "regular",
+      "capacity": "1000 единиц в день",
+      "isActive": true
+    }
+  ]
+}

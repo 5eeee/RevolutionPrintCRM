@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Документы - Производство печати</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .sidebar {
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 40;
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 16rem;
+            }
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 4px 8px;
+        }
+        
+        .nav-item:hover {
+            background-color: #f1f5f9;
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .document-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .document-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        
+        .document-type {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .document-type.quote {
+            background: #3b82f6;
+        }
+        
+        .document-type.invoice {
+            background: #10b981;
+        }
+        
+        .document-type.contract {
+            background: #f59e0b;
+        }
+        
+        .document-type.report {
+            background: #8b5cf6;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .status-generated {
+            background-color: #f0fdf4;
+            color: #16a34a;
+        }
+        
+        .status-sent {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+        }
+        
+        .status-signed {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-archived {
+            background-color: #f8fafc;
+            color: #64748b;
+        }
+        
+        .burger-menu {
+            display: none;
+        }
+        
+        @media (max-width: 767px) {
+            .burger-menu {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Burger Menu -->
+    <div class="burger-menu fixed top-4 left-4 z-50">
+        <button id="burgerMenu" class="bg-white p-3 rounded-lg shadow-lg">
+            <i class="fas fa-bars text-gray-600"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 p-4 transform -translate-x-full md:translate-x-0">
+        <div class="mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-print text-2xl text-blue-600 mr-3"></i>
+                <h1 class="text-xl font-bold text-gray-800">Печать Про</h1>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                        <div id="userName" class="font-semibold text-gray-800">Пользователь</div>
+                        <div id="userRole" class="text-sm text-gray-500">Менеджер</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <nav class="space-y-2">
+            <a href="index.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-home mr-3 w-5"></i>
+                <span>Главная</span>
+            </a>
+            <a href="calculator.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-calculator mr-3 w-5"></i>
+                <span>Калькулятор</span>
+            </a>
+            <a href="clients.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-users mr-3 w-5"></i>
+                <span>Клиенты</span>
+            </a>
+            <a href="orders.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-clipboard-list mr-3 w-5"></i>
+                <span>Заказы</span>
+            </a>
+            <a href="chat.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-comments mr-3 w-5"></i>
+                <span>Чат</span>
+            </a>
+            <a href="documents.html" class="nav-item active flex items-center p-3 text-gray-700">
+                <i class="fas fa-file-alt mr-3 w-5"></i>
+                <span>Документы</span>
+            </a>
+            <a href="profile.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-user-cog mr-3 w-5"></i>
+                <span>Профиль</span>
+            </a>
+            <a href="admin.html" class="nav-item flex items-center p-3 text-gray-700">
+                <i class="fas fa-cog mr-3 w-5"></i>
+                <span>Админ-панель</span>
+            </a>
+        </nav>
+        
+        <!-- Logout Button -->
+        <div class="absolute bottom-4 left-4 right-4">
+            <button id="logoutBtn" class="w-full bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-colors">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Выход
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-800">Документы</h2>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Search -->
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Поиск документов..."
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    
+                    <!-- Generate Document Button -->
+                    <button onclick="generateDocument()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        Создать документ
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-6">
+            <!-- Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="card p-6 text-center">
+                    <div class="text-3xl font-bold text-blue-600 mb-2" id="totalDocuments">0</div>
+                    <div class="text-gray-500">Всего документов</div>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-3xl font-bold text-green-600 mb-2" id="generatedDocs">0</div>
+                    <div class="text-gray-500">Сгенерировано</div>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-3xl font-bold text-orange-600 mb-2" id="sentDocs">0</div>
+                    <div class="text-gray-500">Отправлено</div>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-3xl font-bold text-purple-600 mb-2" id="signedDocs">0</div>
+                    <div class="text-gray-500">Подписано</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-lg p-4 mb-6 shadow-sm">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Тип документа:</label>
+                        <select id="typeFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Все типы</option>
+                            <option value="quote">КП</option>
+                            <option value="invoice">Счет</option>
+                            <option value="contract">Договор</option>
+                            <option value="report">Отчет</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Статус:</label>
+                        <select id="statusFilter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Все статусы</option>
+                            <option value="generated">Сгенерирован</option>
+                            <option value="sent">Отправлен</option>
+                            <option value="signed">Подписан</option>
+                            <option value="archived">Архивирован</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="resetFilters()" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-times mr-1"></i>
+                        Сбросить фильтры
+                    </button>
+                </div>
+            </div>
+
+            <!-- Documents Grid -->
+            <div id="documentsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Documents will be loaded here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-12 hidden">
+                <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-500 mb-2">Документы не найдены</h3>
+                <p class="text-gray-400 mb-6">Попробуйте изменить фильтры поиска или создайте новый документ</p>
+                <button onclick="generateDocument()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Создать первый документ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        let documents = [];
+        let filteredDocuments = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!system.currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            system.updateUI();
+            loadDocuments();
+            setupEventListeners();
+        });
+
+        function loadDocuments() {
+            // Load documents from system
+            documents = system.db.documents || [];
+            
+            // Add demo documents if none exist
+            if (documents.length === 0) {
+                const demoDocuments = [
+                    {
+                        id: 'doc_001',
+                        type: 'quote',
+                        orderId: 'order_001',
+                        clientId: 'client_001',
+                        generatedBy: system.currentUser.id,
+                        fileName: 'КП_001_ООО_Пример_Компания.pdf',
+                        filePath: 'resources/documents/КП_001_ООО_Пример_Компания.pdf',
+                        createdAt: '2024-01-20T14:30:00Z',
+                        status: 'generated'
+                    },
+                    {
+                        id: 'doc_002',
+                        type: 'invoice',
+                        orderId: 'order_002',
+                        clientId: 'client_002',
+                        generatedBy: system.currentUser.id,
+                        fileName: 'Счет_002_ИП_Соколова.pdf',
+                        filePath: 'resources/documents/Счет_002_ИП_Соколова.pdf',
+                        createdAt: '2024-01-19T11:15:00Z',
+                        status: 'sent'
+                    },
+                    {
+                        id: 'doc_003',
+                        type: 'contract',
+                        orderId: 'order_003',
+                        clientId: 'client_003',
+                        generatedBy: system.currentUser.id,
+                        fileName: 'Договор_003_ЗАО_ТекстильПром.pdf',
+                        filePath: 'resources/documents/Договор_003_ЗАО_ТекстильПром.pdf',
+                        createdAt: '2024-01-18T16:45:00Z',
+                        status: 'signed'
+                    }
+                ];
+                
+                documents = demoDocuments;
+                system.db.documents = documents;
+                system.saveDatabase();
+            }
+            
+            filteredDocuments = documents;
+            renderDocuments();
+            updateStatistics();
+        }
+
+        function renderDocuments() {
+            const grid = document.getElementById('documentsGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredDocuments.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            grid.innerHTML = filteredDocuments.map(document => {
+                const client = system.db.clients.find(c => c.id === document.clientId);
+                const order = system.db.orders.find(o => o.id === document.orderId);
+                const generatedUser = system.db.users.find(u => u.id === document.generatedBy);
+                const statusClass = `status-${document.status}`;
+                const statusText = getStatusText(document.status);
+                const typeIcon = getTypeIcon(document.type);
+                const typeClass = document.type;
+                
+                return `
+                    <div class="document-card" onclick="viewDocument('${document.id}')">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center">
+                                <div class="document-type ${typeClass} mr-3">
+                                    <i class="${typeIcon}"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800 mb-1">${getTypeName(document.type)}</h3>
+                                    <p class="text-sm text-gray-500">${client ? client.companyName : 'Клиент не найден'}</p>
+                                </div>
+                            </div>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-file-alt mr-2 w-4"></i>
+                                <span class="truncate">${document.fileName}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-hashtag mr-2 w-4"></i>
+                                <span>Заказ №${order ? order.id.split('_')[1] : 'N/A'}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-user mr-2 w-4"></i>
+                                <span>${generatedUser ? generatedUser.fullName : 'Неизвестен'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between text-xs text-gray-400">
+                            <span>Создан: ${system.formatDate(document.createdAt)}</span>
+                            <div class="flex space-x-2">
+                                <button onclick="event.stopPropagation(); downloadDocument('${document.id}')" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); sendDocument('${document.id}')" class="text-green-600 hover:text-green-800">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); deleteDocument('${document.id}')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStatistics() {
+            const total = documents.length;
+            const generated = documents.filter(d => d.status === 'generated').length;
+            const sent = documents.filter(d => d.status === 'sent').length;
+            const signed = documents.filter(d => d.status === 'signed').length;
+            
+            document.getElementById('totalDocuments').textContent = total;
+            document.getElementById('generatedDocs').textContent = generated;
+            document.getElementById('sentDocs').textContent = sent;
+            document.getElementById('signedDocs').textContent = signed;
+        }
+
+        function getTypeText(type) {
+            const typeMap = {
+                'quote': 'КП',
+                'invoice': 'Счет',
+                'contract': 'Договор',
+                'report': 'Отчет'
+            };
+            return typeMap[type] || type;
+        }
+
+        function getTypeIcon(type) {
+            const iconMap = {
+                'quote': 'fas fa-file-invoice',
+                'invoice': 'fas fa-receipt',
+                'contract': 'fas fa-file-contract',
+                'report': 'fas fa-chart-bar'
+            };
+            return iconMap[type] || 'fas fa-file-alt';
+        }
+
+        function getTypeName(type) {
+            const nameMap = {
+                'quote': 'Коммерческое предложение',
+                'invoice': 'Счет на оплату',
+                'contract': 'Договор',
+                'report': 'Отчет'
+            };
+            return nameMap[type] || 'Документ';
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'generated': 'Сгенерирован',
+                'sent': 'Отправлен',
+                'signed': 'Подписан',
+                'archived': 'Архивирован'
+            };
+            return statusMap[status] || status;
+        }
+
+        function setupEventListeners() {
+            // Search
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                filterDocuments();
+            });
+            
+            // Filters
+            document.getElementById('typeFilter').addEventListener('change', filterDocuments);
+            document.getElementById('statusFilter').addEventListener('change', filterDocuments);
+        }
+
+        function filterDocuments() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            filteredDocuments = documents.filter(document => {
+                const client = system.db.clients.find(c => c.id === document.clientId);
+                
+                const matchesSearch = !searchTerm || 
+                    document.fileName.toLowerCase().includes(searchTerm) ||
+                    (client && client.companyName.toLowerCase().includes(searchTerm));
+                
+                const matchesType = !typeFilter || document.type === typeFilter;
+                const matchesStatus = !statusFilter || document.status === statusFilter;
+                
+                return matchesSearch && matchesType && matchesStatus;
+            });
+            
+            renderDocuments();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            filteredDocuments = documents;
+            renderDocuments();
+        }
+
+        function generateDocument() {
+            // For demo, create a new document
+            const documentTypes = ['quote', 'invoice', 'contract', 'report'];
+            const randomType = documentTypes[Math.floor(Math.random() * documentTypes.length)];
+            const clients = system.db.clients;
+            
+            if (clients.length === 0) {
+                alert('Сначала добавьте клиентов');
+                return;
+            }
+            
+            const randomClient = clients[Math.floor(Math.random() * clients.length)];
+            const fileName = `${getTypeText(randomType)}_${Date.now()}_${randomClient.companyName.replace(/\s+/g, '_')}.pdf`;
+            
+            const newDocument = {
+                id: 'doc_' + Date.now(),
+                type: randomType,
+                orderId: 'order_' + Date.now(),
+                clientId: randomClient.id,
+                generatedBy: system.currentUser.id,
+                fileName: fileName,
+                filePath: `resources/documents/${fileName}`,
+                createdAt: new Date().toISOString(),
+                status: 'generated'
+            };
+            
+            documents.push(newDocument);
+            system.db.documents = documents;
+            system.saveDatabase();
+            
+            filteredDocuments = documents;
+            renderDocuments();
+            updateStatistics();
+            
+            system.logAction('document_generated', `Создан документ: ${fileName}`);
+            system.createNotification('document_generated', 'Документ создан', `Создан документ: ${getTypeName(randomType)} для ${randomClient.companyName}`);
+            
+            alert(`Документ ${getTypeName(randomType)} успешно создан!`);
+        }
+
+        function viewDocument(documentId) {
+            const document = documents.find(d => d.id === documentId);
+            if (!document) return;
+            
+            const client = system.db.clients.find(c => c.id === document.clientId);
+            const order = system.db.orders.find(o => o.id === document.orderId);
+            
+            alert(`Информация о документе:\n\nТип: ${getTypeName(document.type)}\nФайл: ${document.fileName}\nКлиент: ${client ? client.companyName : 'Не найден'}\nЗаказ: №${order ? order.id.split('_')[1] : 'N/A'}\nСтатус: ${getStatusText(document.status)}`);
+        }
+
+        function downloadDocument(documentId) {
+            const document = documents.find(d => d.id === documentId);
+            if (!document) return;
+            
+            // Simulate download
+            const link = document.createElement('a');
+            link.href = '#';
+            link.download = document.fileName;
+            link.click();
+            
+            system.logAction('document_downloaded', `Скачан документ: ${document.fileName}`);
+            alert(`Документ ${document.fileName} начал скачиваться`);
+        }
+
+        function sendDocument(documentId) {
+            const document = documents.find(d => d.id === documentId);
+            if (!document) return;
+            
+            // Update status
+            document.status = 'sent';
+            document.updatedAt = new Date().toISOString();
+            
+            system.db.documents = documents;
+            system.saveDatabase();
+            
+            filteredDocuments = documents;
+            renderDocuments();
+            updateStatistics();
+            
+            system.logAction('document_sent', `Отправлен документ: ${document.fileName}`);
+            system.createNotification('document_sent', 'Документ отправлен', `Документ ${getTypeName(document.type)} отправлен клиенту`);
+            
+            alert(`Документ ${getTypeName(document.type)} отправлен клиенту!`);
+        }
+
+        function deleteDocument(documentId) {
+            if (!confirm('Вы уверены, что хотите удалить этот документ?')) return;
+            
+            const documentIndex = documents.findIndex(d => d.id === documentId);
+            if (documentIndex !== -1) {
+                const document = documents[documentIndex];
+                documents.splice(documentIndex, 1);
+                
+                system.db.documents = documents;
+                system.saveDatabase();
+                
+                filteredDocuments = documents;
+                renderDocuments();
+                updateStatistics();
+                
+                system.logAction('document_deleted', `Удален документ: ${document.fileName}`);
+                system.createNotification('document_deleted', 'Документ удален', `Удален документ: ${document.fileName}`);
+            }
+        }
+
+        // Mobile sidebar toggle
+        document.getElementById('burgerMenu').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const burgerMenu = document.getElementById('burgerMenu');
+            
+            if (window.innerWidth < 768 && 
+                !sidebar.contains(e.target) && 
+                !burgerMenu.contains(e.target) && 
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
